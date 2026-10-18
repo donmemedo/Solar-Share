@@ -1,0 +1,18 @@
+services:
+  backend:
+    build: ./backend
+    ports: ["8045:8000"]
+    volumes: [aftab-data:/data]
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/api/health')"]
+      interval: 5s
+      retries: 10
+  frontend:
+    build:
+      context: ./frontend
+      args: { BACKEND_URL: "http://backend:8000" }
+    ports: ["3045:3000"]
+    depends_on:
+      backend: { condition: service_healthy }
+volumes:
+  aftab-data:
